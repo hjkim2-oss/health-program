@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>근력량 Up, 건강 쏙! 대시보드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f11;
+    --bg2: #16181c;
+    --bg3: #1e2026;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f0;
+    --text2: #9a9ea8;
+    --text3: #5a5e68;
+    --blue: #4f8ef7;
+    --blue-dim: rgba(79,142,247,0.12);
+    --green: #4caf7d;
+    --green-dim: rgba(76,175,125,0.12);
+    --amber: #f0a830;
+    --amber-dim: rgba(240,168,48,0.12);
+    --red: #e05c5c;
+    --red-dim: rgba(224,92,92,0.12);
+    --purple: #9b7ef8;
+    --purple-dim: rgba(155,126,248,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: 28px 32px 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header-left h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+  .header-left p {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+  .sync-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .sync-btn:hover { background: var(--bg2); color: var(--text); border-color: var(--blue); }
+  .sync-btn svg { width: 14px; height: 14px; }
+  .spinning { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    padding: 20px 32px 0;
+  }
+  .tab {
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text3);
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.15s;
+  }
+  .tab:hover { color: var(--text2); background: var(--bg2); }
+  .tab.active { background: var(--bg3); color: var(--text); border: 0.5px solid var(--border2); }
+
+  /* ── Main layout ── */
+  .main { padding: 20px 32px 40px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── Metric cards ── */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .metric {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .metric.blue::before { background: var(--blue); }
+  .metric.green::before { background: var(--green); }
+  .metric.amber::before { background: var(--amber); }
+  .metric.purple::before { background: var(--purple); }
+  .metric-label { font-size: 11px; color: var(--text3); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
+  .metric-val { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; }
+  .metric-sub { font-size: 11px; color: var(--text2); margin-top: 6px; }
+
+  /* ── Grid layout ── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .card-title {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+
+  /* ── Rank list ── */
+  .rank-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .rank-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .rank-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .team-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .rank-info { flex: 1; min-width: 0; }
+  .rank-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .rank-bar-wrap { margin-top: 5px; }
+  .rank-bar-bg { background: var(--bg3); border-radius: 3px; height: 4px; overflow: hidden; }
+  .rank-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+  .rank-count {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .rank-unit { font-size: 10px; color: var(--text3); }
+
+  /* ── Member table ── */
+  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 0.5px solid var(--border2);
+    background: transparent;
+    color: var(--text2);
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.15s;
+  }
+  .filter-btn.on, .filter-btn:hover { background: var(--bg3); color: var(--text); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left;
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  td {
+    padding: 11px 10px;
+    border-bottom: 0.5px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 11px; padding: 3px 8px; border-radius: 20px;
+    font-weight: 500;
+  }
+  .b-ex { background: var(--blue-dim); color: var(--blue); }
+  .b-st { background: var(--green-dim); color: var(--green); }
+  .b-dt { background: var(--amber-dim); color: var(--amber); }
+
+  .dot-row { display: flex; gap: 3px; }
+  .dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px;
+  }
+  .dot-on { background: var(--blue-dim); color: var(--blue); }
+  .dot-off { background: var(--bg3); }
+
+  /* ── Gallery ── */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+  }
+  .g-card {
+    background: var(--bg3);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .g-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .g-img {
+    height: 120px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+  }
+  .g-info { padding: 10px 12px; }
+  .g-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .g-meta { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .g-date { font-size: 10px; color: var(--text3); margin-top: 3px; }
+
+  /* ── Empty state ── */
+  .empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 60px 20px;
+    color: var(--text3);
+    gap: 12px;
+    text-align: center;
+  }
+  .empty svg { opacity: 0.3; }
+  .empty p { font-size: 13px; line-height: 1.6; }
+
+  /* ── Config section ── */
+  .config-box {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    max-width: 560px;
+  }
+  .config-title { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+  .config-desc { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.6; }
+  .form-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Space Grotesk', sans-serif;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--blue); }
+  .form-btn {
+    padding: 10px 22px;
+    background: var(--blue);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: opacity 0.2s;
+  }
+  .form-btn:hover { opacity: 0.85; }
+  .hint {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--blue-dim);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--blue);
+    line-height: 1.7;
+  }
+  .step { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+  .step-num {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--bg3); border: 0.5px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--text2); flex-shrink: 0; margin-top: 1px;
+  }
+  .step p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .step code {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 11px;
+    background: var(--bg3);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--text);
+  }
+
+  /* ── Donut chart ── */
+  .donut-wrap { position: relative; height: 160px; width: 160px; margin: 0 auto; }
+  .donut-label {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .donut-label .big { font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; color: var(--text); }
+  .donut-label .small { font-size: 11px; color: var(--text3); }
+  .legend-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .legend-name { font-size: 12px; color: var(--text2); flex: 1; }
+  .legend-val { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 500; color: var(--text); }
+
+  /* ── Status badge ── */
+  .status-ok { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--green); }
+  .status-ok::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
+  .status-wait { color: var(--text3); font-size: 11px; }
+
+  @media (max-width: 768px) {
+    .header, .tabs, .main { padding-left: 16px; padding-right: 16px; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>근력량 Up, 건강 쏙! 📊</h1>
+    <p id="sync-status" class="status-wait">구글 시트를 연결하면 실시간 데이터가 표시됩니다</p>
+  </div>
+  <button class="sync-btn" onclick="loadData()">
+    <svg id="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/>
+    </svg>
+    새로고침
+  </button>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('dashboard', this)">대시보드</button>
+  <button class="tab" onclick="switchTab('members', this)">팀원 현황</button>
+  <button class="tab" onclick="switchTab('gallery', this)">인증 갤러리</button>
+  <button class="tab" onclick="switchTab('config', this)">⚙️ 연동 설정</button>
+</div>
+
+<div class="main">
+
+  <!-- 대시보드 -->
+  <div class="section active" id="tab-dashboard">
+    <div class="metrics">
+      <div class="metric blue">
+        <div class="metric-label">총 인증 건수</div>
+        <div class="metric-val" id="m-total">—</div>
+        <div class="metric-sub" id="m-total-sub">데이터 없음</div>
+      </div>
+      <div class="metric green">
+        <div class="metric-label">참여 인원</div>
+        <div class="metric-val" id="m-people">—</div>
+        <div class="metric-sub" id="m-people-sub">데이터 없음</div>
+      </div>
+      <div class="metric amber">
+        <div class="metric-label">참여 팀 수</div>
+        <div class="metric-val" id="m-teams">—</div>
+        <div class="metric-sub" id="m-teams-sub">데이터 없음</div>
+      </div>
+      <div class="metric purple">
+        <div class="metric-label">인당 평균 인증</div>
+        <div class="metric-val" id="m-avg">—</div>
+        <div class="metric-sub" id="m-avg-sub">데이터 없음</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">팀별 순위</div>
+        <div id="rank-list">
+          <div class="empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <p>구글 시트를 연동하면<br>팀별 순위가 표시됩니다</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">종목별 인증 분포</div>
+        <div class="donut-wrap">
+          <canvas id="donut-chart" width="160" height="160" role="img" aria-label="종목별 인증 건수 도넛 차트">데이터 없음</canvas>
+          <div class="donut-label">
+            <div class="big" id="donut-center">0</div>
+            <div class="small">총 건수</div>
+          </div>
+        </div>
+        <div style="margin-top: 16px;" id="legend-area">
+          <div class="legend-row"><span class="legend-dot" style="background:var(--blue)"></span><span class="legend-name">운동</span><span class="legend-val">—</span></div>
+          <div class="legend-row"><span class="legend-dot" style="background:var(--green)"></span><span class="legend-name">계단오르기</span><span class="legend-val">—</span></div>
+          <div class="legend-row"><span class="legend-dot" style="background:var(--amber)"></span><span class="legend-name">식단관리</span><span class="legend-val">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 팀원 현황 -->
+  <div class="section" id="tab-members">
+    <div class="filter-row" id="team-filter">
+      <button class="filter-btn on" onclick="filterMembers('', this)">전체</button>
+    </div>
+    <div class="card">
+      <div id="member-table-wrap">
+        <div class="empty">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <p>구글 시트를 연동하면<br>팀원별 인증 현황이 표시됩니다</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 갤러리 -->
+  <div class="section" id="tab-gallery">
+    <div class="filter-row">
+      <button class="filter-btn on" onclick="filterGallery('전체', this)">전체</button>
+      <button class="filter-btn" onclick="filterGallery('운동', this)">운동</button>
+      <button class="filter-btn" onclick="filterGallery('계단오르기', this)">계단오르기</button>
+      <button class="filter-btn" onclick="filterGallery('식단관리', this)">식단관리</button>
+    </div>
+    <div id="gallery-wrap">
+      <div class="empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <p>구글 시트를 연동하면<br>인증 사진 갤러리가 표시됩니다</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 연동 설정 -->
+  <div class="section" id="tab-config">
+    <div class="config-box">
+      <div class="config-title">구글 시트 연동</div>
+      <div class="config-desc">
+        구글 폼 응답 스프레드시트의 공개 URL을 입력하면<br>실시간으로 인증 데이터를 불러옵니다.
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <div class="step"><div class="step-num">1</div><p>구글 스프레드시트 열기 → <code>파일 → 공유 → 웹에 게시</code></p></div>
+        <div class="step"><div class="step-num">2</div><p>게시 형식: <code>CSV</code> 선택 후 URL 복사</p></div>
+        <div class="step"><div class="step-num">3</div><p>아래 입력란에 붙여넣기 후 <code>연동하기</code> 클릭</p></div>
+      </div>
+
+      <label class="form-label">스프레드시트 CSV 게시 URL</label>
+      <input class="form-input" id="sheet-url" type="text"
+        placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv">
+      <button class="form-btn" onclick="saveConfig()">연동하기</button>
+
+      <div class="hint" style="margin-top: 16px;">
+        💡 컬럼 순서: <strong>타임스탬프 / 이메일 주소 / 이름 / 사번 / 랜덤 팀 / 인증 종목 / 인증 사진</strong><br>
+        구글 폼으로 수집된 데이터가 그대로 반영됩니다.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── 컬럼 인덱스 (구글 폼 자동 생성 순서 기준)
+const COL = {
+  timestamp: 0,
+  email: 1,
+  name: 2,
+  empId: 3,
+  team: 4,
+  type: 5,
+  photo: 6
+};
+
+const TEAM_COLORS = ['#4f8ef7','#4caf7d','#f0a830','#e05c5c','#9b7ef8','#38bcd8','#f06292','#80cbc4'];
+const TYPE_EMOJI = { '운동': '🏃', '계단오르기': '🪜', '식단관리': '🥗' };
+const TYPE_CLASS = { '운동': 'b-ex', '계단오르기': 'b-st', '식단관리': 'b-dt' };
+const TYPE_COLOR = { '운동': '#4f8ef7', '계단오르기': '#4caf7d', '식단관리': '#f0a830' };
+
+let allData = [];
+let donutChart = null;
+let currentGalleryFilter = '전체';
+
+// ── 탭 전환
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+// ── 설정 저장
+function saveConfig() {
+  const url = document.getElementById('sheet-url').value.trim();
+  if (!url) { alert('URL을 입력해주세요.'); return; }
+  localStorage.setItem('sheet_csv_url', url);
+  loadData();
+}
+
+// ── CSV 파싱 (쌍따옴표 포함 필드 처리)
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  return lines.slice(1).map(line => {
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += c; }
+    }
+    cols.push(cur.trim());
+    return cols;
+  }).filter(r => r.length > 1 && r[COL.name]);
+}
+
+// ── 데이터 로드
+async function loadData() {
+  const url = localStorage.getItem('sheet_csv_url');
+  if (!url) { switchTab('config', document.querySelectorAll('.tab')[3]); return; }
+
+  const icon = document.getElementById('sync-icon');
+  icon.classList.add('spinning');
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('fetch 실패');
+    const text = await res.text();
+    allData = parseCSV(text);
+    renderAll();
+    const now = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('sync-status').className = 'status-ok';
+    document.getElementById('sync-status').textContent = `마지막 업데이트 ${now}`;
+  } catch (e) {
+    document.getElementById('sync-status').className = 'status-wait';
+    document.getElementById('sync-status').textContent = '연동 실패 — 설정 탭에서 URL을 확인해주세요';
+  } finally {
+    icon.classList.remove('spinning');
+  }
+}
+
+// ── 전체 렌더
+function renderAll() {
+  renderMetrics();
+  renderRank();
+  renderDonut();
+  renderTeamFilter();
+  renderMembers('');
+  renderGallery(currentGalleryFilter);
+}
+
+// ── 메트릭
+function renderMetrics() {
+  const total = allData.length;
+  const people = new Set(allData.map(r => r[COL.empId])).size;
+  const teams = new Set(allData.map(r => r[COL.team])).size;
+  const avg = people > 0 ? (total / people).toFixed(1) : '—';
+
+  document.getElementById('m-total').textContent = total;
+  document.getElementById('m-total-sub').textContent = `총 제출 건수`;
+  document.getElementById('m-people').textContent = people + '명';
+  document.getElementById('m-people-sub').textContent = `고유 사번 기준`;
+  document.getElementById('m-teams').textContent = teams + '팀';
+  document.getElementById('m-teams-sub').textContent = `랜덤 배정 팀`;
+  document.getElementById('m-avg').textContent = avg + '건';
+  document.getElementById('m-avg-sub').textContent = `1인 평균`;
+}
+
+// ── 팀 순위
+function renderRank() {
+  const teamCount = {};
+  allData.forEach(r => {
+    const t = r[COL.team] || '미배정';
+    teamCount[t] = (teamCount[t] || 0) + 1;
+  });
+  const sorted = Object.entries(teamCount).sort((a, b) => b[1] - a[1]);
+  const max = sorted[0]?.[1] || 1;
+  const medals = ['🥇', '🥈', '🥉'];
+
+  if (sorted.length === 0) {
+    document.getElementById('rank-list').innerHTML = `<div class="empty"><p>아직 인증 데이터가 없습니다</p></div>`;
+    return;
+  }
+
+  document.getElementById('rank-list').innerHTML = sorted.map(([name, cnt], i) => {
+    const color = TEAM_COLORS[i % TEAM_COLORS.length];
+    return `
+      <div class="rank-item">
+        <div class="rank-num" style="color:${i < 3 ? ['#f0a830','#9a9ea8','#c47e4a'][i] : 'var(--text3)'}">
+          ${i < 3 ? medals[i] : i + 1}
+        </div>
+        <div class="team-avatar" style="background:${color}22; color:${color}; font-size:13px; font-weight:600;">${name.slice(0, 2)}</div>
+        <div class="rank-info">
+          <div class="rank-name">${name}</div>
+          <div class="rank-bar-wrap">
+            <div class="rank-bar-bg"><div class="rank-bar-fill" style="width:${Math.round(cnt/max*100)}%; background:${color};"></div></div>
+          </div>
+        </div>
+        <div class="rank-count">${cnt}<span class="rank-unit" style="margin-left:2px;">건</span></div>
+      </div>`;
+  }).join('');
+}
+
+// ── 도넛 차트
+function renderDonut() {
+  const types = ['운동', '계단오르기', '식단관리'];
+  const counts = types.map(t => allData.filter(r => r[COL.type] === t).length);
+  const total = counts.reduce((a, b) => a + b, 0);
+  document.getElementById('donut-center').textContent = total;
+
+  const legend = document.getElementById('legend-area');
+  const colors = [TYPE_COLOR['운동'], TYPE_COLOR['계단오르기'], TYPE_COLOR['식단관리']];
+  legend.innerHTML = types.map((t, i) => `
+    <div class="legend-row">
+      <span class="legend-dot" style="background:${colors[i]}"></span>
+      <span class="legend-name">${t}</span>
+      <span class="legend-val">${counts[i]}건</span>
+    </div>`).join('');
+
+  if (donutChart) donutChart.destroy();
+  donutChart = new Chart(document.getElementById('donut-chart'), {
+    type: 'doughnut',
+    data: {
+      labels: types,
+      datasets: [{
+        data: total > 0 ? counts : [1, 1, 1],
+        backgroundColor: total > 0 ? colors : ['#2a2d35', '#2a2d35', '#2a2d35'],
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: false,
+      cutout: '68%',
+      plugins: { legend: { display: false }, tooltip: { enabled: total > 0 } },
+      animation: { duration: 600 }
+    }
+  });
+}
+
+// ── 팀 필터 버튼
+function renderTeamFilter() {
+  const teams = ['', ...new Set(allData.map(r => r[COL.team]).filter(Boolean))];
+  document.getElementById('team-filter').innerHTML = teams.map((t, i) =>
+    `<button class="filter-btn ${i === 0 ? 'on' : ''}" onclick="filterMembers('${t}', this)">${t || '전체'}</button>`
+  ).join('');
+}
+
+// ── 팀원 현황 테이블
+function filterMembers(team, btn) {
+  document.querySelectorAll('#team-filter .filter-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderMembers(team);
+}
+
+function renderMembers(team) {
+  const filtered = team ? allData.filter(r => r[COL.team] === team) : allData;
+
+  // 사번 기준으로 그룹화
+  const personMap = {};
+  filtered.forEach(r => {
+    const key = r[COL.empId] || r[COL.name];
+    if (!personMap[key]) personMap[key] = { name: r[COL.name], empId: r[COL.empId], team: r[COL.team], rows: [] };
+    personMap[key].rows.push(r);
+  });
+
+  const persons = Object.values(personMap).sort((a, b) => b.rows.length - a.rows.length);
+
+  if (persons.length === 0) {
+    document.getElementById('member-table-wrap').innerHTML = `<div class="empty"><p>해당 팀 데이터가 없습니다</p></div>`;
+    return;
+  }
+
+  const rows = persons.map(p => {
+    const types = [...new Set(p.rows.map(r => r[COL.type]))];
+    const badges = types.map(t => `<span class="badge ${TYPE_CLASS[t] || ''}">${TYPE_EMOJI[t] || ''} ${t}</span>`).join(' ');
+    const recent = p.rows.slice(-7).map(r => r[COL.type]);
+    const dots = Array.from({length: 7}, (_, i) => recent[i]
+      ? `<div class="dot dot-on" title="${recent[i]}">✓</div>`
+      : `<div class="dot dot-off"></div>`).join('');
+    return `<tr>
+      <td style="font-weight:500;">${p.name}</td>
+      <td style="color:var(--text2);font-size:12px;">${p.empId}</td>
+      <td style="font-size:12px;">${p.team}</td>
+      <td><span style="font-family:'Space Grotesk';font-size:17px;font-weight:700;">${p.rows.length}</span></td>
+      <td>${badges}</td>
+      <td><div class="dot-row">${dots}</div></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('member-table-wrap').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>이름</th><th>사번</th><th>팀</th><th>총 인증</th><th>종목</th><th>최근 7건</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ── 갤러리
+function filterGallery(type, btn) {
+  document.querySelectorAll('.filter-row .filter-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  currentGalleryFilter = type;
+  renderGallery(type);
+}
+
+function renderGallery(type) {
+  const filtered = type === '전체' ? allData : allData.filter(r => r[COL.type] === type);
+  const recent = [...filtered].reverse().slice(0, 30);
+
+  if (recent.length === 0) {
+    document.getElementById('gallery-wrap').innerHTML = `
+      <div class="empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <p>아직 인증 사진이 없습니다</p>
+      </div>`;
+    return;
+  }
+
+  const cards = recent.map(r => {
+    const emoji = TYPE_EMOJI[r[COL.type]] || '📋';
+    const bgMap = { '운동': '#1a2540', '계단오르기': '#1a2e24', '식단관리': '#2e2414' };
+    const bg = bgMap[r[COL.type]] || '#1e2026';
+    const date = r[COL.timestamp] ? r[COL.timestamp].split(' ')[0] : '';
+    const photoUrl = r[COL.photo];
+    const imgContent = photoUrl
+      ? `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='${emoji}'">`
+      : emoji;
+    return `
+      <div class="g-card">
+        <div class="g-img" style="background:${bg};">${imgContent}</div>
+        <div class="g-info">
+          <div class="g-name">${r[COL.name]} <span style="font-size:10px;color:var(--text3);font-weight:400;">${r[COL.team]}</span></div>
+          <div class="g-meta"><span class="badge ${TYPE_CLASS[r[COL.type]] || ''}" style="font-size:10px;">${emoji} ${r[COL.type]}</span></div>
+          <div class="g-date">${date}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('gallery-wrap').innerHTML = `<div class="gallery-grid">${cards}</div>`;
+}
+
+// ── 저장된 URL로 자동 로드
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('sheet_csv_url');
+  if (saved) {
+    document.getElementById('sheet-url').value = saved;
+    loadData();
+  }
+});
+</script>
+</body>
+</html>
